@@ -1,0 +1,59 @@
+﻿@model EmployeeManagement.Models.Employee.AddEmployeeViewModel;
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.10.0/font/bootstrap-icons.min.css">
+
+<div>
+    <form method="post" asp-action="Add" enctype="multipart/form-data">
+
+        <div class="d-flex align-items-center justify-content-center flex-column">
+            <h2 class="mb-5">Add Employee</h2>
+
+            <!-- Image Preview -->
+            <img id="profilePreview" src="@(!string.IsNullOrEmpty(Model.ProfileImg) ? Model.ProfileImg : "https://beforeigosolutions.com/wp-content/uploads/2021/12/dummy-profile-pic-300x300-1.png")"
+                 class="rounded-circle img-thumbnail"
+                 style="width: 150px; height: 150px;">
+
+            <!-- "Upload" button -->
+            <button type="button" class="btn btn-info mt-2" onclick="triggerFileUpload()">
+                Upload <i class="bi bi-upload"></i>
+            </button>
+
+            <!-- Hidden file input -->
+            <input type="file" id="fileInput" class="form-control mt-2" asp-for="ProfileImgFile" accept="image/*" style="display: none;" onchange="previewImage(event)" />
+        </div>
+
+        <div class="mb-3">
+            <label>Full Name</label>
+            <input type="text" class="form-control" asp-for="Name" placeholder="Enter your full name here." required />
+        </div>
+        <div class="mb-3">
+            <label>Phone</label>
+            <input type="number" class="form-control" asp-for="Phone" placeholder="01X1299XXXX" required />
+        </div>
+        <div class="mb-3">
+            <label>Email</label>
+            <input type="text" class="form-control" asp-for="Email" required />
+        </div>
+        <div class="mb-3">
+            <label>Date of birth</label>
+            <input type="date" class="form-control" asp-for="DOB" required />
+        </div>
+        <div>
+            <button type="submit" class="btn btn-primary">Submit</button>
+        </div>
+    </form>
+</div>
+
+<script>
+    function triggerFileUpload() {
+        document.getElementById('fileInput').click();
+    }
+
+    function previewImage(event) {
+        var reader = new FileReader();
+        reader.onload = function () {
+            var output = document.getElementById('profilePreview');
+            output.src = reader.result;
+        }
+        reader.readAsDataURL(event.target.files[0]);
+    }
+</script>
