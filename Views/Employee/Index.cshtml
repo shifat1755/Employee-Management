@@ -1,3 +1,225 @@
-﻿<div>
-    <p>Here goes all employee </p>
+﻿@* @model List<EmployeeManagement.Models.Employee.EmployeeViewModel> *@
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.10.0/font/bootstrap-icons.min.css">
+
+<div class="d-flex flex-column justify-content-center">
+    <div  class="">
+        <input id="nameSearch" type="text" class="form-control-sm" placeholder="name"/>
+        <input id="DOBSearch" type="date" class="form-control-sm" placeholder="Date of Birth" />
+        <input id="emailSearch"  type="text" class="form-control-sm" placeholder="Email" />
+        <input id="numberSearch"  type="number" class="form-control-sm" placeholder="Mobile" />
+        <i class="bi bi-search" style="font-size:20px; cursor:pointer" onclick="search()"></i>
+    </div>
+    <div class="mt-2">
+        <table>
+            <thead >
+                <tr class="border-2 bg-info">
+                    <th class="border-2">Photo</th>
+                    <th class="border-2">
+                        <div class="d-flex justify-content-between align-items-center">
+                            Full Name
+                            <span>
+                                <i class="bi bi-caret-up-fill" data-column="Name" data-sort="desc" style="cursor: pointer;"></i>
+                                <i class="bi bi-caret-down-fill" data-column="Name" data-sort="asc" style="cursor: pointer;"></i>
+                            </span>
+                        </div>
+                    </th>
+                    <th class="border-2">
+                        <div class="d-flex justify-content-between align-items-center">
+                            Email
+                            <span>
+                                <i class="bi bi-caret-up-fill" data-column="Email" data-sort="desc" style="cursor: pointer;"></i>
+                                <i class="bi bi-caret-down-fill" data-column="Email" data-sort="asc" style="cursor: pointer;"></i>
+                            </span>
+                        </div>
+                    </th>
+                    <th class="border-2">
+                        <div class="d-flex justify-content-between align-items-center">
+                            Mobile
+                            <span>
+                                <i class="bi bi-caret-up-fill" data-column="Mobile" data-sort="desc" style="cursor: pointer;"></i>
+                                <i class="bi bi-caret-down-fill" data-column="Mobile" data-sort="asc" style="cursor: pointer;"></i>
+                            </span>
+                        </div>
+                    </th>
+                    <th class="border-2">
+                        <div class="d-flex justify-content-between align-items-center">
+                            Date Of Birth
+                            <span>
+                                <i class="bi bi-caret-up-fill" data-column="DOB" data-sort="desc" style="cursor: pointer;"></i>
+                                <i class="bi bi-caret-down-fill" data-column="DOB" data-sort="asc" style="cursor: pointer;"></i>
+                            </span>
+                        </div>
+                    </th>
+                    <th class="border-2">Actions</th>
+                </tr>
+            </thead>
+
+            <tbody id="employee-table-body">
+            </tbody>
+        </table>
+    </div>
+    <div id="pagination-container" class="d-flex justify-content-center align-items-center mt-3">
+    </div>
+
 </div>
+<script>
+
+    function sortTable(column, sortDirection) {
+        const sortedEmployees = [...employees].sort((a, b) => {
+            if (sortDirection === 'asc') {
+                return a[column] > b[column] ? 1 : -1;
+            } else {
+                return a[column] < b[column] ? 1 : -1;
+            }
+        });
+
+        renderTable(sortedEmployees);
+    }
+    function renderTable(data) {
+        console.log("employees=>", data)
+
+        const tableBody = document.getElementById('employee-table-body');
+
+        tableBody.innerHTML = '';
+
+        let rows = '';
+
+        if (data.length > 0) {
+            data.forEach(employee => {
+                rows += `<tr class="border-2">
+                            <td>
+                                <img src="${employee.profileImg || 'https://beforeigosolutions.com/wp-content/uploads/2021/12/dummy-profile-pic-300x300-1.png'}"
+                                     class="img-thumbnail"
+                                     style="width: 120px; height: 120px;">
+                            </td>
+                            <td class="border-2">${employee.name}</td>
+                            <td class="border-2">${employee.email}</td>
+                            <td class="border-2">${employee.phone}</td>
+                            <td class="border-2">${new Date(employee.dob).toLocaleDateString()}</td>
+                            <td>
+                                <i class="bi bi-pencil-square" style="margin-left:5px; cursor:pointer" onclick="window.location.href='/Employee/Edit?id=${employee.Id}'"></i>
+                                <i class="bi bi-trash" style="margin-left:3px; cursor:pointer" onclick="getConfirmation(employee.id,employee.name)"></i>
+                            </td>
+                        </tr>`;
+            });
+        } else {
+            rows = `<tr>
+                        <td colspan="6" class="text-center">
+                            <div class="alert alert-info mt-3">
+                                No employees found.
+                            </div>
+                        </td>
+                    </tr>`;
+        }
+
+        tableBody.insertAdjacentHTML('beforeend', rows);
+    }
+
+    document.querySelectorAll('thead i').forEach(icon => {
+        icon.addEventListener('click', function () {
+            const column = this.getAttribute('data-column');
+            const sortDirection = this.getAttribute('data-sort');
+
+            // Reset other arrows
+            document.querySelectorAll('thead i').forEach(i => {
+                i.style.display = 'inline';
+                i.setAttribute('data-sort', i.classList.contains('bi-caret-up-fill') ? 'desc' : 'asc');
+            });
+
+            if (sortDirection === 'asc') {
+                this.style.display = 'none';
+                document.querySelector(`i[data-column="${column}"][data-sort="desc"]`).style.display = 'inline';
+            } else {
+                this.style.display = 'none';
+                document.querySelector(`i[data-column="${column}"][data-sort="asc"]`).style.display = 'inline';
+            }
+
+            sortTable(column, sortDirection);
+        });
+    });
+
+    function search() {
+        let name = document.getElementById('nameSearch').value;
+        let dob = document.getElementById('DOBSearch').value;
+        let email = document.getElementById('emailSearch').value;
+        let number = document.getElementById('numberSearch').value;
+
+        if (
+            (name === null || name.trim() === '') &&
+            (dob === null || dob.trim() === '') &&
+            (email === null || email.trim() === '') &&
+            (number === null || number === '')
+        ) {
+            return;
+        }
+        let paginationHTML = '';
+        document.getElementById('pagination-container').innerHTML = paginationHTML;
+
+
+
+        let searchData = {
+            Name: name,
+            DOB: dob,
+            Email: email,
+            Phone: number
+        };
+        //Using AJAX to send the data asynchronously to the controller.
+        fetch('/Employee/Search', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(searchData)
+        })
+            .then(response => response.json())
+            .then(data => {
+                renderTable(data);
+            })
+            .catch(error => console.error('Error:', error));
+    }
+
+    function getConfirmation(id,name){
+        console,log(id,name)
+        if (confirm('Do you want to delete this account?')) {
+            window.location.href = `/Employee/Delete?id=${id}`;
+        }
+        else {
+            alert('Account deletion cancelled')
+        }
+    }
+
+    function fetchEmployees(page = 1) {
+        fetch('/Employee/GetEmployees', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(page)
+        })
+            .then(response => response.json())
+            .then(data => {
+                console.log("data==>",data)
+                renderTable(data.employees);
+                renderPagination(data.currentPage, data.totalPages, data.pageSize, data.totalItems);
+            })
+            .catch(error => console.error('Error:', error));
+    }
+
+    function renderPagination(currentPage, totalPages, pageSize, totalItems) {
+        let paginationHTML = '';
+        paginationHTML += `<span>Showing ${(currentPage - 1) * pageSize + 1} to ${Math.min(currentPage * pageSize, totalItems)} out of ${totalItems}</span>`;
+
+        paginationHTML += `<nav style="margin-left:100px;" aria-label="Page navigation"><ul class="pagination">`;
+        for (let i = 1; i <= totalPages; i++) {
+            paginationHTML += `
+                <li class="page-item ${currentPage === i ? 'active' : ''}">
+                    <a class="page-link" href="#" onclick="fetchEmployees(${i})">${i}</a>
+                </li>`;
+        }
+        paginationHTML += `</ul></nav>`;
+        document.getElementById('pagination-container').innerHTML = paginationHTML;
+    }
+    fetchEmployees();
+
+
+</script>
