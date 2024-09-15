@@ -63,8 +63,9 @@
 
 </div>
 <script>
-
+    var employees = '';
     function sortTable(column, sortDirection) {
+        console.log("Got Call inSort Function", column,sortDirection)
         const sortedEmployees = [...employees].sort((a, b) => {
             if (sortDirection === 'asc') {
                 return a[column] > b[column] ? 1 : -1;
@@ -72,7 +73,8 @@
                 return a[column] < b[column] ? 1 : -1;
             }
         });
-
+        employees = sortedEmployees;
+        console.log("sorted Employee",sortedEmployees)
         renderTable(sortedEmployees);
     }
     function renderTable(data) {
@@ -97,8 +99,8 @@
                             <td class="border-2">${employee.phone}</td>
                             <td class="border-2">${new Date(employee.dob).toLocaleDateString()}</td>
                             <td>
-                                <i class="bi bi-pencil-square" style="margin-left:5px; cursor:pointer" onclick="window.location.href='/Employee/Edit?id=${employee.Id}'"></i>
-                                <i class="bi bi-trash" style="margin-left:3px; cursor:pointer" onclick="getConfirmation(employee.id,employee.name)"></i>
+                                <i class="bi bi-pencil-square" style="margin-left:5px; cursor:pointer" onclick="window.location.href='/Employee/Edit?id=${employee.id}'"></i>
+                                        <i class="bi bi-trash" style="margin-left:3px; cursor:pointer" onclick="getConfirmation('${employee.id}')"></i>
                             </td>
                         </tr>`;
             });
@@ -178,13 +180,12 @@
             .catch(error => console.error('Error:', error));
     }
 
-    function getConfirmation(id,name){
-        console,log(id,name)
+    function getConfirmation(id) {
+        console.log(id);
         if (confirm('Do you want to delete this account?')) {
             window.location.href = `/Employee/Delete?id=${id}`;
-        }
-        else {
-            alert('Account deletion cancelled')
+        } else {
+            alert('Account deletion cancelled');
         }
     }
 
@@ -202,6 +203,7 @@
         })
             .then(response => response.json())
             .then(data => {
+                employees = data.employees
                 console.log("data==>",data)
                 renderTable(data.employees);
                 renderPagination(data.currentPage, data.totalPages, data.pageSize, data.totalItems);

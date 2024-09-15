@@ -52,5 +52,21 @@ namespace EmployeeManagement.Service.FileService
             }
             return res;
         }
+        public async Task DeletePrevImg(string filePath)
+        {
+            try
+            {
+                
+                File.Delete(filePath);
+                Console.WriteLine($"Deleted file: {filePath}");
+                
+
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error deleting file: {filePath}, Exception: {ex.Message}");
+            }
+        }
+
     }
 }
