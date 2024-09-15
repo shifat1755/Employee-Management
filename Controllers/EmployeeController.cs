@@ -1,4 +1,5 @@
 ﻿using EmployeeManagement.Data;
+using EmployeeManagement.Models;
 using EmployeeManagement.Models.Employee;
 using EmployeeManagement.Models.Entities;
 using EmployeeManagement.Service.EmployeeService;
@@ -39,9 +40,10 @@ namespace EmployeeManagement.Controllers
             return View();
         }
         [HttpPost]
-        public async Task<IActionResult> GetEmployees(int pageNumber = 1)
+        public async Task<IActionResult> GetEmployees([FromBody] PaginationViewModel model)
         {
-            int pageSize = 5;
+            int pageNumber = model.page;
+            int pageSize = 3;
             var totalCount = await _employeeService.GetEmployeeCountAsync();
             var employees = await _employeeService.GetEmployeesAsync(pageNumber, pageSize);
 

@@ -58,7 +58,7 @@
             </tbody>
         </table>
     </div>
-    <div id="pagination-container" class="d-flex justify-content-center align-items-center mt-3">
+    <div id="pagination-container" class="d-flex mt-3">
     </div>
 
 </div>
@@ -189,12 +189,16 @@
     }
 
     function fetchEmployees(page = 1) {
+        console.log("Page",page, typeof(page))
+        let pageData = {
+            page:page
+        };
         fetch('/Employee/GetEmployees', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify(page)
+            body: JSON.stringify(pageData)
         })
             .then(response => response.json())
             .then(data => {

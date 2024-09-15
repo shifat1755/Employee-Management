@@ -1,4 +1,7 @@
 ﻿using Microsoft.AspNetCore.Hosting;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Processing;
+using SixLabors.ImageSharp.Formats.Jpeg;
 
 namespace EmployeeManagement.Service.FileService
 {
@@ -20,9 +23,26 @@ namespace EmployeeManagement.Service.FileService
                 var uniqueFileName = Guid.NewGuid().ToString() + "_" + file.FileName;
                 var filePath = Path.Combine(uploadsFolder, uniqueFileName);
 
-                using (var stream = new FileStream(filePath, FileMode.Create))
+                if (file.Length > 512 * 1024)
                 {
-                    await file.CopyToAsync(stream);
+                    using (var image = await Image.LoadAsync(file.OpenReadStream()))
+                    {
+                        var resizeOptions = new ResizeOptions
+                        {
+                            Mode = ResizeMode.Max,
+                            Size = new Size(800, 800)
+                        };
+                        image.Mutate(x => x.Resize(resizeOptions));
+                        var jpegOptions = new JpegEncoder { Quality = 75 };
+                        await image.SaveAsync(filePath, jpegOptions);
+                    }
+                }
+                else
+                {
+                    using (var stream = new FileStream(filePath, FileMode.Create))
+                    {
+                        await file.CopyToAsync(stream);
+                    }
                 }
 
                 res = "/uploads/" + uniqueFileName;
